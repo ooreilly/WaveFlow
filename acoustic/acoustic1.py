@@ -93,7 +93,7 @@ def pgrid():
 sess = tf.InteractiveSession()
 
 stride = 100
-order = 2
+order = 8
 N = 4001
 r = 2
 q = 2
@@ -137,6 +137,6 @@ for i in range(nt):
     step_velocity.run()
     if i % stride == 0:
         end = time.time()
-        print "Iteration: % d \t fps: %g \t iter/s: %g  " % (i, stride*1.0/(end - start), (end-start)*1.0/stride) 
+        print "Iteration: % d \t fps: %g \t s/iter: %g  " % (i, stride*1.0/(end - start), (end-start)*1.0/stride) 
         start = time.time()
         display(p.eval(), rng=[-0.1, 0.1], show=show_plot)
