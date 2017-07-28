@@ -46,6 +46,11 @@ def stencils(orders):
         stencil = [-1, 1]
     if order == 4:
         stencil = [0.0416666666666667, -1.125, 1.125, -0.0416666666666667]
+    if order == 6:
+        stencil = [-3.0/640,  25.0/384,  -75.0/64,  75.0/64,  -25.0/384,  3/640]
+    if order == 8:
+        stencil = [0.5e1 / 0.7168e4, -0.49e2 / 0.5120e4, 0.245e3 / 0.3072e4, -0.1225e4 / 0.1024e4, 0.1225e4 / 0.1024e4,
+                   -0.245e3 / 0.3072e4, 0.49e2 / 0.5120e4, -0.5e1 / 0.7168e4]
     return stencil
 
 def test():
@@ -70,7 +75,7 @@ sess = tf.InteractiveSession()
 
 
 stride = 100
-order = 2
+order = 8
 N = 4001
 r = 2
 q = 2
@@ -84,6 +89,10 @@ s = stencils(order)
 p0 = np.zeros([N, N], dtype=np.float32)
 u0 = np.zeros([N, N], dtype=np.float32)
 v0 = np.zeros([N, N], dtype=np.float32)
+
+for n in range(40):
+  a,b = np.random.randint(0, N, 2)
+  p0[a,b] = np.random.uniform()
 
 p = tf.Variable(p0)
 u = tf.Variable(u0)
