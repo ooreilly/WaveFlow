@@ -11,7 +11,16 @@
 import tensorflow as tf
 import numpy as np
 import time
+import matplotlib.pyplot as plt
 
+fig = plt.figure()
+
+def display(a, rng=[0,1], show=True):
+    if not show:
+        return
+    plt.cla()
+    plt.imshow(a, vmin=rng[0], vmax=rng[1])
+    plt.show()
 
 def make_kernel_x(a):
     """Transform a 2D array into a convolution kernel"""
@@ -22,14 +31,22 @@ def make_kernel_x(a):
 def make_kernel_y(a):
     """Transform a 2D array into a convolution kernel"""
     a = np.asarray(a)
-    a = a.reshape([1, len(a), 1,1])
+    a = a.reshape([1, a.shape[0], 1,1])
     return tf.constant(a, dtype=1)
 
 def Dx(x, stencil):
     return simple_conv(x, make_kernel_x(stencil))
 
 def Dy(x, stencil):
+    return simple_conv(x, make_kernel_y(stencil))
+
+def Dxh(x, stencil):
+    stencil = stencil + [0]
     return simple_conv(x, make_kernel_x(stencil))
+
+def Dyh(x, stencil):
+    stencil = stencil + [0]
+    return simple_conv(x, make_kernel_y(stencil))
 
 def simple_conv(x, k):
     """A simplified 2D convolution operation"""
@@ -54,11 +71,6 @@ def stencils(orders):
     return stencil
 
 def test():
-    # Build the different grids for each variable
-    px = np.linspace(0, 1, N)
-    py = np.linspace(0, 1, N)
-    pX, pY = np.meshgrid(px, py)
-    
     ux = np.linspace(0 + 0.5*h, 1 + 0.5*h, N)
     uy = np.linspace(0, 1, N)
     uX, uY = np.meshgrid(ux, uy)
@@ -70,49 +82,61 @@ def test():
     up  = taylor(uX, uY, q, r)
     udpx = taylor(uX, uY, q-1, r)
 
+    #TODO: but visual inspection looks ok.
+
+def pgrid():
+    px = np.linspace(0, 1, N)
+    py = np.linspace(0, 1, N)
+    pX, pY = np.meshgrid(px, py)
+    return pX, pY
 
 sess = tf.InteractiveSession()
 
-
 stride = 100
-order = 8
+order = 2
 N = 4001
 r = 2
 q = 2
 h = 1.0/(N-1)
-dt = 0.5*h
-nt = 1000
+nu = 0.1
+nt = 2000
+show_plot = False
 s = stencils(order)
-
-#dpy = taylor(X, Y, q, r-1)
 
 p0 = np.zeros([N, N], dtype=np.float32)
 u0 = np.zeros([N, N], dtype=np.float32)
 v0 = np.zeros([N, N], dtype=np.float32)
 
-for n in range(40):
-  a,b = np.random.randint(0, N, 2)
-  p0[a,b] = np.random.uniform()
+# Gaussian initial condition
+pg = pgrid()                               
+a = 1000.0
+p0 = np.exp(-a*np.power(pg[0] - 0.5,2) - a*np.power(pg[1] - 0.5,2)).astype(dtype=np.float32)
+
+display(p0, rng=[-0.1, 0.1], show=show_plot)
 
 p = tf.Variable(p0)
 u = tf.Variable(u0)
 v = tf.Variable(v0)
 
-p_ = p - dt*(Dx(u, s) + Dy(v, s))
-u_ = u - dt*Dx(p, s)
-v_ = v - dt*Dy(p, s)
+p_ = p - nu*(Dx(u, s) + Dy(v, s))
+u_ = u - nu*Dxh(p, s)
+v_ = v - nu*Dyh(p, s)
 
 tf.global_variables_initializer().run()
 
-step = tf.group(
-  p.assign(p_),
+step_pressure = tf.group(
+  p.assign(p_))
+
+step_velocity = tf.group(
   u.assign(u_), 
   v.assign(v_))
 
 start = time.time()
 for i in range(nt):
-    step.run()
+    step_pressure.run()
+    step_velocity.run()
     if i % stride == 0:
         end = time.time()
         print "Iteration: % d \t fps: %g \t iter/s: %g  " % (i, stride*1.0/(end - start), (end-start)*1.0/stride) 
         start = time.time()
+        display(p.eval(), rng=[-0.1, 0.1], show=show_plot)
