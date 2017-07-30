@@ -1,3 +1,6 @@
+import numpy as np 
+import tensorflow as tf
+
 def make_kernel_x(a):
     """Transform a 2D array into a convolution kernel"""
     a = np.asarray(a)
@@ -34,7 +37,7 @@ def simple_conv(x, k):
 def taylor(X, Y, q, r):
     return np.multiply(np.power(X, q), np.power(Y, r))
 
-def stencils(orders):
+def stencils(order):
     if order == 2:
         stencil = [-1, 1]
     if order == 4:
