@@ -63,7 +63,7 @@ u0 = np.zeros([N, N], dtype=np.float32)
 v0 = np.zeros([N, N], dtype=np.float32)
 
 # Gaussian initial condition
-x,y = pgrid(Nx, Ny)                               
+x,y = pgrid(N, N)                               
 a = 1000.0
 p0 = np.exp(-a*np.power(x - 0.5,2) - a*np.power(y - 0.5,2)).astype(dtype=np.float32)
 
