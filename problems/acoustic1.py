@@ -51,7 +51,7 @@ sess = tf.InteractiveSession()
 
 stride = 100
 order = 4
-N = 1024
+N = 512
 nu = 0.1
 nt = 2000
 show_plot = False
@@ -73,18 +73,23 @@ p = tf.Variable(p0)
 u = tf.Variable(u0)
 v = tf.Variable(v0)
 
-p_ = p - nu*(k.Dx2d(u, s) + k.Dy2d(v, s))
-u_ = u - nu*k.Dxh2d(p, s)
-v_ = v - nu*k.Dyh2d(p, s)
+u_x = k.Dx2d(u, s)
+v_y = k.Dy2d(v, s)
+p_x = k.Dxh2d(p, s)
+p_y = k.Dyh2d(p, s)
+
+p_t = p - nu*(u_x + v_y)
+u_t = u - nu*p_x
+v_t = v - nu*p_y
 
 tf.global_variables_initializer().run()
 
 step_pressure = tf.group(
-  p.assign(p_))
+  p.assign(p_t))
 
 step_velocity = tf.group(
-  u.assign(u_), 
-  v.assign(v_))
+  u.assign(u_t), 
+  v.assign(v_t))
 
 start = time.time()
 for i in range(nt):
