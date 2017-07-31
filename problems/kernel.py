@@ -1,33 +1,31 @@
 import numpy as np 
 import tensorflow as tf
 
-def make_kernel_x(a):
-    """Transform a 2D array into a convolution kernel"""
+def make_kernel_x2d(a):
     a = np.asarray(a)
     a = a.reshape(list(a.shape) + [1,1,1])
     return tf.constant(a, dtype=1)
 
-def make_kernel_y(a):
-    """Transform a 2D array into a convolution kernel"""
+def make_kernel_y2d(a):
     a = np.asarray(a)
     a = a.reshape([1, a.shape[0], 1,1])
     return tf.constant(a, dtype=1)
 
-def Dx(x, stencil):
-    return simple_conv(x, make_kernel_x(stencil))
+def Dx2d(x, stencil):
+    return simple_conv2d(x, make_kernel_x2d(stencil))
 
-def Dy(x, stencil):
-    return simple_conv(x, make_kernel_y(stencil))
+def Dy2d(x, stencil):
+    return simple_conv2d(x, make_kernel_y2d(stencil))
 
-def Dxh(x, stencil):
+def Dxh2d(x, stencil):
     stencil = stencil + [0]
-    return simple_conv(x, make_kernel_x(stencil))
+    return simple_conv2d(x, make_kernel_x2d(stencil))
 
-def Dyh(x, stencil):
+def Dyh2d(x, stencil):
     stencil = stencil + [0]
-    return simple_conv(x, make_kernel_y(stencil))
+    return simple_conv2d(x, make_kernel_y2d(stencil))
 
-def simple_conv(x, k):
+def simple_conv2d(x, k):
     """A simplified 2D convolution operation"""
     x = tf.expand_dims(tf.expand_dims(x, 0), -1)
     y = tf.nn.depthwise_conv2d(x, k, [1, 1, 1, 1], padding='SAME')

@@ -73,9 +73,9 @@ p = tf.Variable(p0)
 u = tf.Variable(u0)
 v = tf.Variable(v0)
 
-p_ = p - nu*(k.Dx(u, s) + k.Dy(v, s))
-u_ = u - nu*k.Dxh(p, s)
-v_ = v - nu*k.Dyh(p, s)
+p_ = p - nu*(k.Dx2d(u, s) + k.Dy2d(v, s))
+u_ = u - nu*k.Dxh2d(p, s)
+v_ = v - nu*k.Dyh2d(p, s)
 
 tf.global_variables_initializer().run()
 
