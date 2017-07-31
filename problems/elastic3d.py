@@ -1,12 +1,4 @@
-# This program solves the 2D acoustic wave equation on a standard grid in first order form
-# The purpose of this example is to gain familiarity with TensorFlow.
-# The solution presented here is based on the TensorFlow PDE tutorial, found in tutorial/
-
-# Governing equations:
-# 
-# p_t + u_x + v_y = 0
-# u_t + p_x = 0
-# v_t + p_y = 0
+# This program solves the 3D elastic wave equation on a staggered grid in first order form
 
 import tensorflow as tf
 import numpy as np
@@ -22,24 +14,6 @@ def display(a, rng=[0,1], show=True):
     plt.cla()
     plt.imshow(a, vmin=rng[0], vmax=rng[1])
     plt.show()
-
-
-def test():
-    r = 2
-    q = 2
-    h = 1.0/(N-1)
-    ux = np.linspace(0 + 0.5*h, 1 + 0.5*h, N)
-    uy = np.linspace(0, 1, N)
-    uX, uY = np.meshgrid(ux, uy)
-    
-    vx = np.linspace(0, 1, N)
-    vy = np.linspace(0 + 0.5*h, 1 + 0.5*h, N)
-    vX, vY = np.meshgrid(vx, vy)
-
-    up  = taylor(uX, uY, q, r)
-    udpx = taylor(uX, uY, q-1, r)
-
-    #TODO: but visual inspection looks ok.
 
 def pgrid(Nx, Ny, Nz):
     px = np.linspace(0, 1, Nx)
