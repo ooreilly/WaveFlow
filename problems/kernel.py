@@ -28,8 +28,50 @@ def Dyh2d(x, stencil):
 def simple_conv2d(x, k):
     """A simplified 2D convolution operation"""
     x = tf.expand_dims(tf.expand_dims(x, 0), -1)
-    y = tf.nn.depthwise_conv2d(x, k, [1, 1, 1, 1], padding='SAME')
+    y = tf.nn.conv2d(x, k, [1, 1, 1, 1], padding='SAME')
     return y[0, :, :, 0]
+
+def make_kernel_x3d(a):
+    a = np.asarray(a)
+    a = a.reshape(list(a.shape) + [1,1,1,1])
+    return tf.constant(a, dtype=1)
+
+def make_kernel_y3d(a):
+    a = np.asarray(a)
+    a = a.reshape([1, a.shape[0], 1, 1,1])
+    return tf.constant(a, dtype=1)  
+
+def make_kernel_z3d(a):
+    a = np.asarray(a)
+    a = a.reshape([1, 1, a.shape[0], 1,1])
+    return tf.constant(a, dtype=1)  
+
+def Dx3d(x, stencil):
+    return simple_conv3d(x, make_kernel_x3d(stencil))
+
+def Dy3d(x, stencil):
+    return simple_conv3d(x, make_kernel_y3d(stencil))
+
+def Dz3d(x, stencil):
+    return simple_conv3d(x, make_kernel_z3d(stencil))
+
+def Dxh3d(x, stencil):
+    stencil = stencil + [0]
+    return simple_conv3d(x, make_kernel_x3d(stencil))
+
+def Dyh3d(x, stencil):
+    stencil = stencil + [0]
+    return simple_conv3d(x, make_kernel_y3d(stencil))
+
+def Dzh3d(x, stencil):
+    stencil = stencil + [0]
+    return simple_conv3d(x, make_kernel_z3d(stencil))
+
+
+def simple_conv3d(x, k):
+    x = tf.expand_dims(tf.expand_dims(x, 0), -1)
+    y = tf.nn.conv3d(x, k, [1, 1, 1, 1, 1], padding='SAME')
+    return y[0, :, :, :, 0]
 
 # Multivariate Taylor polynomial: x^q*y^r/(q!*r!)
 def taylor(X, Y, q, r):
