@@ -55,7 +55,7 @@ order = 4
 N = 100
 nu = 0.01
 nt = 2000
-show_plot = True
+show_plot = False
 s = k.stencils(order)
 dof = 9*N**2
 
